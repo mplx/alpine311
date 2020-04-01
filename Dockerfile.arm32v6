@@ -1,7 +1,15 @@
 ARG VERSION=3.11
 
-FROM alpine:${VERSION}
+FROM alpine AS builder
+
+ENV QEMU_URL https://github.com/balena-io/qemu/releases/download/v3.0.0%2Bresin/qemu-3.0.0+resin-arm.tar.gz
+RUN apk add curl && \
+  curl -L ${QEMU_URL} | tar zxvf - -C . --strip-components 1
+
+FROM arm32v6/alpine:${VERSION}
 LABEL maintainer="gmi-edv@i-med.ac.at"
+
+COPY --from=builder qemu-arm-static /usr/bin
 
 ARG VERSION
 ARG ALPINE_MIRROR_BASE="http://dl-cdn.alpinelinux.org"
